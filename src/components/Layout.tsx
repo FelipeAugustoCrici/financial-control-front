@@ -62,7 +62,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
           <div className="w-10 h-10 bg-success-500 rounded-xl flex items-center justify-center shadow-lg shadow-success-500/20">
             <BarChart3 className="text-white" size={24} />
           </div>
-          <span className="text-xl font-bold tracking-tight">FinanceFlow</span>
+          <span className="text-xl font-bold tracking-tight">FinFamily AI</span>
         </div>
 
         <nav className="flex-1 space-y-2">
