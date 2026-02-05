@@ -16,6 +16,7 @@
     "@hookform/resolvers": "^5.2.2",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/react-query": "^5.90.20",
+    "amazon-cognito-identity-js": "^6.3.16",
     "axios": "^1.13.4",
     "clsx": "^2.1.1",
     "lodash": "^4.17.23",

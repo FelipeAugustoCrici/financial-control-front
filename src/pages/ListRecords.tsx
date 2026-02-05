@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import _ from 'lodash';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card } from '../components/ui/Card';
+import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button, cn } from '@/components/ui/Button';
 import {
@@ -17,7 +17,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
-import { financeService } from '../services/api';
+import { financeService } from '@/services/api';
 import { useNavigate } from 'react-router-dom';
 
 export const ListRecords = () => {
@@ -41,16 +41,14 @@ export const ListRecords = () => {
 
   const handleDelete = (tx: any) => {
     if (window.confirm('Tem certeza que deseja excluir este lançamento?')) {
-      const type = tx.type === 'income' ? (tx.sourceId || tx.type === 'fixed' ? 'income' : 'extra') : 'expense';
-      // Se for salário (não implementado o mapeamento aqui perfeitamente no dashboard tx mapping mas vamos ajustar)
       let recordType: 'salary' | 'extra' | 'income' | 'expense' = 'expense';
-      
+
       if (tx.type === 'income') {
-          if (tx.description === 'Salário' || tx.salaryId) recordType = 'salary';
-          else if (tx.sourceId || tx.type === 'fixed') recordType = 'income';
-          else recordType = 'extra';
+        if (tx.description === 'Salário' || tx.salaryId) recordType = 'salary';
+        else if (tx.sourceId || tx.type === 'fixed') recordType = 'income';
+        else recordType = 'extra';
       } else {
-          recordType = 'expense';
+        recordType = 'expense';
       }
 
       deleteRecordMutation.mutate({ type: recordType, id: tx.id });
@@ -80,8 +78,7 @@ export const ListRecords = () => {
   });
 
   const extras = extrasResponse?.data || [];
-  const loading =
-    isLoadingExpenses || isLoadingExtras || isLoadingFamilies || isLoadingIncomes;
+  const loading = isLoadingExpenses || isLoadingExtras || isLoadingFamilies || isLoadingIncomes;
 
   const allTransactions = _.orderBy(
     [
@@ -271,18 +268,22 @@ export const ListRecords = () => {
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button 
+                          <button
                             onClick={() => navigate('/cadastro', { state: { editRecord: tx } })}
                             className="p-1.5 text-primary-400 hover:text-primary-700 hover:bg-primary-100 rounded-md transition-colors"
                           >
                             <Edit2 size={16} />
                           </button>
-                          <button 
+                          <button
                             onClick={() => handleDelete(tx)}
                             disabled={deleteRecordMutation.isPending}
                             className="p-1.5 text-primary-400 hover:text-danger-600 hover:bg-danger-50 rounded-md transition-colors disabled:opacity-50"
                           >
-                            {deleteRecordMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                            {deleteRecordMutation.isPending ? (
+                              <Loader2 size={16} className="animate-spin" />
+                            ) : (
+                              <Trash2 size={16} />
+                            )}
                           </button>
                           <button
                             onClick={() => navigate('/detalhes', { state: { transaction: tx } })}

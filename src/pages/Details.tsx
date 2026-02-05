@@ -1,7 +1,7 @@
 import React from 'react';
-import { Card } from '../components/ui/Card';
-import { Badge } from '../components/ui/Badge';
-import { Button, cn } from '../components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
+import { Button, cn } from '@/components/ui/Button';
 import {
   ArrowUpCircle,
   ArrowDownCircle,
@@ -39,14 +39,14 @@ export const Details = () => {
   const handleDelete = () => {
     if (!transaction) return;
     if (window.confirm('Tem certeza que deseja excluir este lançamento?')) {
-      let recordType: 'salary' | 'extra' | 'income' | 'expense' = 'expense';
-      
+      let recordType: 'salary' | 'extra' | 'income' | 'expense';
+
       if (transaction.type === 'income') {
-          if (transaction.description === 'Salário' || transaction.salaryId) recordType = 'salary';
-          else if (transaction.sourceId || transaction.type === 'fixed') recordType = 'income';
-          else recordType = 'extra';
+        if (transaction.description === 'Salário' || transaction.salaryId) recordType = 'salary';
+        else if (transaction.sourceId || transaction.type === 'fixed') recordType = 'income';
+        else recordType = 'extra';
       } else {
-          recordType = 'expense';
+        recordType = 'expense';
       }
 
       deleteRecordMutation.mutate({ type: recordType, id: transaction.id });
@@ -81,16 +81,24 @@ export const Details = () => {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="secondary" size="sm" onClick={() => navigate('/cadastro', { state: { editRecord: transaction } })}>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => navigate('/cadastro', { state: { editRecord: transaction } })}
+          >
             <Edit2 size={16} className="mr-2" /> Editar
           </Button>
-          <Button 
-            variant="danger" 
-            size="sm" 
+          <Button
+            variant="danger"
+            size="sm"
             onClick={handleDelete}
             disabled={deleteRecordMutation.isPending}
           >
-            {deleteRecordMutation.isPending ? <Loader2 size={16} className="animate-spin mr-2" /> : <Trash2 size={16} className="mr-2" />} 
+            {deleteRecordMutation.isPending ? (
+              <Loader2 size={16} className="animate-spin mr-2" />
+            ) : (
+              <Trash2 size={16} className="mr-2" />
+            )}
             Excluir
           </Button>
         </div>
@@ -117,7 +125,9 @@ export const Details = () => {
                     <Badge variant={isIncome ? 'success' : 'danger'}>
                       {isIncome ? 'Receita' : 'Despesa'}
                     </Badge>
-                    <Badge variant="primary">{transaction.category?.name || transaction.categoryName || 'Geral'}</Badge>
+                    <Badge variant="primary">
+                      {transaction.category?.name || transaction.categoryName || 'Geral'}
+                    </Badge>
                   </div>
                 </div>
               </div>
