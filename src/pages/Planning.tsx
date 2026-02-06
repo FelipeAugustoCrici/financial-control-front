@@ -4,8 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 import { Card } from '@/components/ui/Card';
 import { Input, Select } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { financeService } from '../services/api';
-import { Goal, CreditCard } from '../types';
+import { financeService } from '@/services/api';
+import { Goal, CreditCard } from '@/types';
 
 export const Planning: React.FC = () => {
   const [goals, setGoals] = useState<Goal[]>([]);
