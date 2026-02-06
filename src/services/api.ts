@@ -1,20 +1,29 @@
 import axios from 'axios';
 import {
-  Salary,
   ExtraIncome,
   Income,
   Expense,
   Goal,
   Budget,
   CreditCard,
-  Summary,
   Family,
-  Person,
   Category,
 } from '@/types';
+import { fetchAuthSession } from 'aws-amplify/auth';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3333',
+});
+
+api.interceptors.request.use(async (config) => {
+  const session = await fetchAuthSession();
+  const token = session.tokens?.accessToken?.toString();
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
 });
 
 const prefix = '/finance';
@@ -25,40 +34,13 @@ export const financeService = {
     const response = await api.get<Category[]>(`${prefix}/categories`);
     return response.data;
   },
-  async createCategory(data: { name: string; type: string }) {
-    const response = await api.post<Category>(`${prefix}/categories`, data);
-    return response.data;
-  },
 
   // Famílias e Pessoas
   async getFamilies() {
     const response = await api.get<Family[]>(`${prefix}/families`);
     return response.data;
   },
-  async createFamily(name: string) {
-    const response = await api.post<Family>(`${prefix}/families`, { name });
-    return response.data;
-  },
-  async createPerson(name: string, familyId: string) {
-    const response = await api.post<Person>(`${prefix}/persons`, { name, familyId });
-    return response.data;
-  },
 
-  // Salários
-  async saveSalary(data: Salary) {
-    const response = await api.post(`${prefix}/salaries`, data);
-    return response.data;
-  },
-  async getSalaries(month: number, year: number) {
-    const response = await api.get<Salary[]>(`${prefix}/salaries?month=${month}&year=${year}`);
-    return response.data;
-  },
-
-  // Extras
-  async addExtra(data: ExtraIncome) {
-    const response = await api.post(`${prefix}/extras`, data);
-    return response.data;
-  },
   async getExtras(month: number, year: number) {
     const response = await api.get<{ data: ExtraIncome[] }>(
       `${prefix}/extras?month=${month}&year=${year}`,
@@ -89,13 +71,6 @@ export const financeService = {
     const response = await api.get<Expense[]>(url);
     return response.data;
   },
-
-  // Resumo
-  async getSummary(month: number, year: number) {
-    const response = await api.get<Summary>(`${prefix}/summary?month=${month}&year=${year}`);
-    return response.data;
-  },
-
   // Metas
   async addGoal(data: Partial<Goal>) {
     const response = await api.post(`${prefix}/goals`, data);
@@ -111,12 +86,7 @@ export const financeService = {
     const response = await api.post(`${prefix}/budgets`, data);
     return response.data;
   },
-  async getBudgets(month: number, year: number) {
-    const response = await api.get<Budget[]>(`${prefix}/budgets?month=${month}&year=${year}`);
-    return response.data;
-  },
 
-  // Cartões
   async addCreditCard(data: CreditCard) {
     const response = await api.post(`${prefix}/credit-cards`, data);
     return response.data;
@@ -126,7 +96,6 @@ export const financeService = {
     return response.data;
   },
 
-  // Generic Update and Delete
   async deleteRecord(
     type:
       | 'salaries'

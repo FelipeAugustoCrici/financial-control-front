@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, Outlet } from 'react-router-dom';
 import {
   LayoutDashboard,
   PlusCircle,
@@ -14,6 +14,7 @@ import {
   Users,
 } from 'lucide-react';
 import { cn } from './ui/Button';
+import { logout } from '@/services/logout';
 
 interface SidebarItemProps {
   to: string;
@@ -41,17 +42,17 @@ const SidebarItem = ({ to, icon: Icon, label, active }: SidebarItemProps) => (
   </Link>
 );
 
-export const Layout = ({ children }: { children: React.ReactNode }) => {
+export const Layout = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const location = useLocation();
 
   const menuItems = [
     { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
-    { to: '/cadastro', icon: PlusCircle, label: 'Novo Registro' },
     { to: '/listagem', icon: ListOrdered, label: 'Lançamentos' },
     { to: '/familias', icon: Users, label: 'Famílias' },
     { to: '/categorias', icon: Tags, label: 'Categorias' },
     { to: '/detalhes', icon: BarChart3, label: 'Relatórios' },
+    { to: '/planjamento', icon: PlusCircle, label: 'Planejamento' },
   ];
 
   return (
@@ -78,16 +79,17 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
             label="Meu Perfil"
             active={location.pathname === '/perfil'}
           />
-          <button className="flex items-center gap-3 px-4 py-3 rounded-lg text-primary-400 hover:bg-danger-500/10 hover:text-danger-500 transition-all w-full text-left">
+          <button
+            onClick={logout}
+            className="flex items-center gap-3 px-4 py-3 rounded-lg text-primary-400 hover:bg-danger-500/10 hover:text-danger-500 transition-all w-full text-left"
+          >
             <LogOut size={20} />
             <span className="font-medium">Sair</span>
           </button>
         </div>
       </aside>
 
-      {/* Main Content */}
       <main className="flex-1 md:ml-64 flex flex-col min-h-screen">
-        {/* Header */}
         <header className="h-20 bg-white border-b border-primary-100 flex items-center justify-between px-6 sticky top-0 z-10">
           <button
             className="md:hidden p-2 text-primary-600"
@@ -116,11 +118,11 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
           </div>
         </header>
 
-        {/* Page Content */}
-        <div className="p-6 md:p-8 animate-in fade-in duration-500">{children}</div>
+        <div className="p-6 md:p-8 animate-in fade-in duration-500">
+          <Outlet />
+        </div>
       </main>
 
-      {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
         <div
           className="fixed inset-0 bg-primary-900/60 backdrop-blur-sm z-30 md:hidden"

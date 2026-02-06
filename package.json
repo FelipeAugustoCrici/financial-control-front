@@ -14,9 +14,11 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
+    "@radix-ui/react-toast": "^1.2.15",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/react-query": "^5.90.20",
     "amazon-cognito-identity-js": "^6.3.16",
+    "aws-amplify": "^6.16.0",
     "axios": "^1.13.4",
     "clsx": "^2.1.1",
     "lodash": "^4.17.23",

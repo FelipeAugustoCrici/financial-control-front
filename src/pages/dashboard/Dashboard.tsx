@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import _ from 'lodash';
-import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
+
 import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
+import { Button, cn } from '@/components/ui/Button';
+
 import {
   ArrowUpCircle,
   ArrowDownCircle,
@@ -10,93 +12,25 @@ import {
   TrendingUp,
   ArrowRight,
   Loader2,
-  ChevronLeft,
-  ChevronRight,
-  Calendar,
 } from 'lucide-react';
-import { Button, cn } from '@/components/ui/Button';
-import { financeService } from '@/services/api';
-import { useNavigate } from 'react-router-dom';
 
-const SummaryCard = ({ title, value, type, icon: Icon, change }: any) => {
-  const colorClass =
-    type === 'income'
-      ? 'text-success-600'
-      : type === 'expense'
-        ? 'text-danger-600'
-        : 'text-primary-800';
-
-  const bgClass =
-    type === 'income' ? 'bg-success-50' : type === 'expense' ? 'bg-danger-50' : 'bg-primary-50';
-
-  const iconColorClass =
-    type === 'income'
-      ? 'text-success-500'
-      : type === 'expense'
-        ? 'text-danger-500'
-        : 'text-primary-500';
-
-  const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
-  };
-
-  return (
-    <Card className="hover:shadow-md transition-shadow">
-      <div className="flex items-center justify-between mb-4">
-        <div className={`p-2 rounded-lg ${bgClass} ${iconColorClass}`}>
-          <Icon size={24} />
-        </div>
-        {change !== undefined && (
-          <Badge variant={change >= 0 ? 'success' : 'danger'}>
-            {change >= 0 ? '+' : ''}
-            {formatCurrency(change)}
-          </Badge>
-        )}
-      </div>
-      <div>
-        <p className="text-sm font-medium text-primary-500">{title}</p>
-        <h2 className={`text-2xl font-bold mt-1 ${colorClass}`}>{formatCurrency(value)}</h2>
-      </div>
-    </Card>
-  );
-};
+import { useDashboard } from './hooks/useDashboard';
+import { SummaryCard, Header } from './components';
 
 export const Dashboard = () => {
   const navigate = useNavigate();
+
   const now = new Date();
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [year, setYear] = useState(now.getFullYear());
 
-  const {
-    data: summary,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ['summary', month, year],
-    queryFn: () => financeService.getSummary(month, year),
-  });
+  const { data: summary, isLoading, error } = useDashboard({ month, year });
 
-  const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
-  };
-
-  const handlePrevMonth = () => {
-    if (month === 1) {
-      setMonth(12);
-      setYear((prev) => prev - 1);
-    } else {
-      setMonth((prev) => prev - 1);
-    }
-  };
-
-  const handleNextMonth = () => {
-    if (month === 12) {
-      setMonth(1);
-      setYear((prev) => prev + 1);
-    } else {
-      setMonth((prev) => prev + 1);
-    }
-  };
+  const formatCurrency = (val: number) =>
+    new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    }).format(val);
 
   if (isLoading) {
     return (
@@ -134,8 +68,14 @@ export const Dashboard = () => {
             date: new Date(yearS, monthS - 1, 5).toISOString(),
           };
         }),
-        ..._.map(_.get(summary, 'details.extras', []), (e) => ({ ...e, type: 'income' as const })),
-        ..._.map(_.get(summary, 'details.incomes', []), (i) => ({ ...i, type: 'income' as const })),
+        ..._.map(_.get(summary, 'details.extras', []), (e) => ({
+          ...e,
+          type: 'income' as const,
+        })),
+        ..._.map(_.get(summary, 'details.incomes', []), (i) => ({
+          ...i,
+          type: 'income' as const,
+        })),
         ..._.map(_.get(summary, 'details.expenses', []), (e) => ({
           ...e,
           type: 'expense' as const,
@@ -149,35 +89,8 @@ export const Dashboard = () => {
 
   return (
     <div className="space-y-8">
-      {/* Cabeçalho do Dashboard com Seletor de Período */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl shadow-soft border border-primary-100">
-        <div>
-          <h1 className="text-2xl font-bold text-primary-800">Dashboard</h1>
-          <p className="text-primary-500">Resumo da saúde financeira da sua família</p>
-        </div>
+      <Header year={year} month={month} setMonth={setMonth} setYear={setYear} />
 
-        <div className="flex items-center bg-primary-50 rounded-xl p-1 border border-primary-100">
-          <Button variant="ghost" size="sm" onClick={handlePrevMonth} className="h-9 w-9 p-0">
-            <ChevronLeft size={20} />
-          </Button>
-
-          <div className="flex items-center gap-2 px-4 min-w-40 justify-center font-bold text-primary-800">
-            <Calendar size={18} className="text-primary-400" />
-            <span className="capitalize">
-              {new Date(year, month - 1).toLocaleString('pt-BR', {
-                month: 'long',
-                year: 'numeric',
-              })}
-            </span>
-          </div>
-
-          <Button variant="ghost" size="sm" onClick={handleNextMonth} className="h-9 w-9 p-0">
-            <ChevronRight size={20} />
-          </Button>
-        </div>
-      </div>
-
-      {/* Resumo da Família */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <SummaryCard
           title="Saldo Total"
@@ -321,7 +234,6 @@ export const Dashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
         {/* Relatórios por Pessoa */}
         <Card
           title="Contribuição por Membro"
@@ -511,7 +423,7 @@ export const Dashboard = () => {
           {summary.budgetAlerts?.length > 0 && (
             <Card title="Alertas de Orçamento">
               <div className="space-y-4">
-                {summary.budgetAlerts.map((item) => (
+                {summary.budgetAlerts.map((item: any) => (
                   <div key={item.category} className="space-y-1">
                     <div className="flex justify-between text-xs font-medium">
                       <span className="text-primary-700 capitalize">{item.category}</span>
